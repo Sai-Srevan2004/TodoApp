@@ -43,6 +43,8 @@ app.post('/api/todoapp/addtodo', async (req, res) => {
     try {
         const { date, todo } = req.body;
 
+        console.log(req.body)
+
         const newTodo = await Todo.create({
             todo,
             date:new Date(date)

@@ -2,7 +2,7 @@ const mongoose=require('mongoose')
 
 const TodoSchema=mongoose.Schema({
     date:{
-        type:Date,
+        type:String,
         rquired:true
     },
     todo:{
