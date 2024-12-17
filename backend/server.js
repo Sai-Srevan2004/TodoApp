@@ -4,6 +4,9 @@ require('dotenv').config();
 const mongoose = require('mongoose')
 const cors = require('cors')
 const Todo = require('./models/Todo')
+const User=require('./models/User')
+const jwt=require('jsonwebtoken')
+// const {auth}=require('./middlewares/Auth')
 
 PORT = process.env.PORT || 9000
 MONGO_URI = process.env.MONGO_URI
@@ -21,7 +24,7 @@ app.use(cors({
 app.use(express.json())
 
 //get todos
-app.get('/api/todoapp/gettodo', async (req, res) => {
+app.get('/api/todoapp/gettodo',async (req, res) => {
     try {
         const data = await Todo.find({});
         return res.json({
@@ -138,6 +141,98 @@ app.delete('/api/todoapp/deletetodo/:id', async (req, res) => {
             success: true,
             data: exist,
             message:"todo deleted successfully!"
+        })
+    } catch (error) {
+        return res.json({
+            success: false,
+            message: error.message
+        })
+    }
+})
+
+
+//user routes
+//login
+
+app.post('/api/todoapp/user/login',async(req,res)=>{
+    try {
+        const {email,password} = req.body;
+
+        console.log(req.body)
+
+        const exist= await User.findOne({email});
+
+        console.log(exist)
+
+        if(!exist)
+        {
+            return res.json({
+                success:false,
+                message:"User does not exist!"
+            })
+        }
+
+        if(exist.password!==password)
+            {
+                return res.json({
+                    success:false,
+                    message:"Invalid Password!"
+                })
+            }
+       
+        const payload={
+            email:exist.email,
+            id:exist._id
+        }
+
+        exist.password=undefined
+
+        const token =jwt.sign(payload,process.env.JWT_SECRET)
+
+        return res.json({
+            success: true,
+            data: exist,
+            token:token,
+            message: "User Logged In successfully!"
+        })
+    } catch (error) {
+        return res.json({
+            success: false,
+            message: error.message
+        })
+    }
+})
+
+
+//signup
+
+app.post('/api/todoapp/user/signup',async(req,res)=>{
+    try {
+        const {email,password} = req.body;
+
+        console.log(req.body)
+
+        const exist= await User.findOne({email});
+
+        if(exist)
+        {
+            return res.json({
+                success:false,
+                message:"User already exist!"
+            })
+        }
+
+       const createUser=await User.create({
+        email:email,
+        password:password
+       })
+
+       createUser.password=undefined
+
+        return res.json({
+            success: true,
+            data: createUser,
+            message: "User Logged In successfully!"
         })
     } catch (error) {
         return res.json({

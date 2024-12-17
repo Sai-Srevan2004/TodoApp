@@ -2,7 +2,7 @@ import React from 'react'
 import {useState } from 'react'
 import axios from 'axios'
 
-const AddTodo = () => {
+const AddTodo = ({fetchTodos}) => {
 
     const [formData,setFormData]=useState({date:'',todo:''})
 
@@ -14,6 +14,7 @@ const AddTodo = () => {
           {
               alert("Added task.")
               console.log("added")
+              fetchTodos()
           }
           else{
               alert("Could not add task!")
