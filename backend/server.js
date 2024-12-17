@@ -12,7 +12,7 @@ mongoose.connect(MONGO_URI).then(() => {
     console.log("Db connected!")
 })
     .catch((err) => {
-        console.log(err)
+        console.log(err.message)
     })
 
 app.use(cors({
@@ -37,6 +37,34 @@ app.get('/api/todoapp/gettodo', async (req, res) => {
     }
 })
 
+
+app.get('/api/todoapp/gettodo/:id', async (req, res) => {
+    try {
+
+        const {id}=req.params;
+        const data = await Todo.findById(id);
+
+        if(!data)
+        {
+            return res.json({
+                success:false,
+                data:data,
+                message:'Got it!'
+            })
+        }
+        return res.json({
+            success: true,
+            data: data,
+            message: "Got all todos"
+        })
+    } catch (error) {
+        return res.json({
+            success: false,
+            message: error.message
+        })
+    }
+})
+
 //post todos
 
 app.post('/api/todoapp/addtodo', async (req, res) => {
@@ -47,7 +75,7 @@ app.post('/api/todoapp/addtodo', async (req, res) => {
 
         const newTodo = await Todo.create({
             todo,
-            date:new Date(date)
+            date
         })
 
         return res.json({
